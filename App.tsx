@@ -10,6 +10,17 @@ const PLAYER_RADIUS = 6;
 const COIN_RADIUS = 8;
 const MONSTER_RADIUS = 20;
 
+// --- TYPE HELPERS ---
+type FitPoint = { x: number; y: number };
+
+type Projectile = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  id: number;
+};
+
 // --- HELPER COMPONENTS ---
 
 // Helper to generate a, b, c ... z, a1, b1 ...
@@ -79,7 +90,7 @@ const App: React.FC = () => {
   const [gameState, setGameState] = useState<'playing' | 'level_complete' | 'game_won'>('playing');
   const [monsterPos, setMonsterPos] = useState({ x: 0, y: 0 });
   const [ammo, setAmmo] = useState(0);
-  const [projectiles, setProjectiles] = useState<{x: number, y: number, vx: number, vy: number, id: number}[]>([]);
+  const [projectiles, setProjectiles] = useState<Projectile[]>([]);
   
   // Tutorial & Cheat Sheet State
   const [showTutorial, setShowTutorial] = useState(false);
@@ -173,7 +184,7 @@ const App: React.FC = () => {
   // --- AUTO FIT VIEW ---
   const autoFitView = useCallback(() => {
     // Collect all important points
-    const points = [
+    const points: FitPoint[] = [
       { x: 0, y: 0 }, // Origin
       { x: playerPos.x, y: playerPos.y } // Player
     ];
@@ -205,7 +216,7 @@ const App: React.FC = () => {
     if (points.length === 0) return;
 
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    points.forEach(p => {
+    points.forEach((p: FitPoint) => {
       if (p.x < minX) minX = p.x;
       if (p.x > maxX) maxX = p.x;
       if (p.y < minY) minY = p.y;
@@ -258,7 +269,7 @@ const App: React.FC = () => {
     // Small delay to ensure container size is ready
     const timer = setTimeout(autoFitView, 50);
     return () => clearTimeout(timer);
-  }, [levelIndex, canvasSize.width, canvasSize.height]); 
+  }, [levelIndex, canvasSize.width, canvasSize.height, autoFitView]); 
 
 
   // --- INITIALIZATION ---
@@ -313,7 +324,7 @@ const App: React.FC = () => {
     if (vectors.length > 0) {
       autoFitView();
     }
-  }, [vectors.length]); // Only on count change
+  }, [vectors.length, autoFitView]); // Only on count change
 
 
   // --- INTERACTION HANDLERS ---
@@ -420,7 +431,7 @@ const App: React.FC = () => {
 
             // Projectiles logic
             setProjectiles(prev => {
-                const next = [];
+                const next: Projectile[] = [];
                 for(const p of prev) {
                    const px = p.x + p.vx * 0.1;
                    const py = p.y + p.vy * 0.1;
@@ -446,7 +457,7 @@ const App: React.FC = () => {
     }
 
     requestRef.current = requestAnimationFrame(animate);
-  }, [currentLevel, gameState, monsterPos, viewState, canvasSize, showTutorial, showCheatSheet]); 
+  }, [currentLevel, gameState, monsterPos, showTutorial, showCheatSheet]); 
 
   useEffect(() => {
     requestRef.current = requestAnimationFrame(animate);
@@ -813,7 +824,7 @@ const App: React.FC = () => {
 
   const giveHint = () => {
     // Find nearest uncollected coin
-    let nearest = null;
+    let nearest: GameObject | null = null;
     let minDist = Infinity;
     
     objects.forEach(obj => {
@@ -1084,7 +1095,7 @@ const App: React.FC = () => {
     ctx.beginPath(); ctx.fillStyle = '#3b82f6'; ctx.shadowBlur = 10; ctx.shadowColor = '#3b82f6';
     ctx.arc(pPos.x, pPos.y, PLAYER_RADIUS, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
 
-  }, [playerPos, vectors, objects, monsterPos, projectiles, currentLevel, viewState, coinAngle, worldToScreen, hint, canvasSize, showTutorial, showCheatSheet, sandboxMode]);
+  }, [playerPos, vectors, objects, monsterPos, projectiles, currentLevel, viewState, coinAngle, worldToScreen, hint, canvasSize, sandboxMode]);
 
 
   // --- UI ---

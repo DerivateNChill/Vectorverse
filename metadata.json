@@ -1,0 +1,5 @@
+{
+  "name": "VectorVerse - Mathe Lernspiel",
+  "description": "Ein interaktives Lernspiel für Schülerinnen und Schüler, um Vektoren im ℝ² zu verstehen (Ortsvektoren, Addition, Subtraktion, Skalare).",
+  "requestFramePermissions": []
+}
